@@ -1,11 +1,6 @@
 ﻿@page "/"
 @inject IJSRuntime JSRuntime
 
-
-
-
-<h3>Current URL: @currentUrl</h3>
-
 @code {
     private string currentUrl= string.Empty;
     private string wadSelection = "doom1";
@@ -46,7 +41,7 @@
 
     private void OnSf2SelectionChanged(ChangeEventArgs e)
     {
-        wadSelection = e.Value.ToString();
+        sf2Selection = e.Value.ToString();
     }
 
     [JSInvokableAttribute("sdfsdf")]
@@ -81,7 +76,7 @@
                 <option value="TimGM6mb">TimGM6mb sf2</option>
                 <option value="Roland_SC-55">Roland 1</option>
                 <option value="Roland_SC-55_v2.2_by_Patch93_and_xan1242">Roland 2</option>
-                <option value="Roland_SC-55_v37">Roland 3</option>
+                <option value="Roland_SC-55">Roland 3</option>
             </select>
         </div>
         <div>
