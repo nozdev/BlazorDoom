@@ -2,7 +2,14 @@ window.getWindowLocationHref = function () {
     return window.location.href;
 };
 
-window.run =function () {
+window.run = function () {
+
+    document.getElementById("load_wad").addEventListener("click", () => {
+        const choice = document.getElementById("wad_selection").value;
+        const soundFont = document.getElementById("sf2_selection").value;
+        DotNet.invokeMethodAsync("BlazorDoom","LoadWad",choice, soundFont);
+    });
+
     // frameTime = 33 or 16
     // 60 fps -> 1 frame in 16.66 ms
     let frameTime = 33;
@@ -11,12 +18,6 @@ window.run =function () {
         frameTime = frameTime === 16 ? 33 : 16;
     }
 
-
-    document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOM is ready!");
-
-        // Your code here
-    });
     document.getElementById("toggle_fps").addEventListener("click", toggleFps);
     const fpsElement = document.getElementById("fps");
 
@@ -34,8 +35,7 @@ window.run =function () {
             fpsMeasure = fpsMeasure * fpsSmoothing + currentFps * (1 - fpsSmoothing);
             lastFrameTimestamp = timestamp;
             //exports.BlazorDoom.MainJS.GameLoop(downKeys, upKeys);
-            DotNet.invokeMethodAsync("BlazorDoom", "sdfsdf", downKeys, upKeys)
-            console.log(`${downKeys}, ${upKeys}`);
+            DotNet.invokeMethodAsync("BlazorDoom", "GameLoop", downKeys, upKeys)
 
             upKeys.splice(0, upKeys.length);
             var endTime = performance.now();
@@ -49,6 +49,17 @@ window.run =function () {
     gameLoop(0);
 
     console.log("Game loop started");
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+            .register("service-worker.js")
+            .then((registration) => {
+                console.log("Service Worker registered:", registration);
+            })
+            .catch((error) => {
+                console.error("Service Worker registration failed:", error);
+            });
+    }
 
     function handleKeyDown(key) {
         const index = downKeys.indexOf(key);

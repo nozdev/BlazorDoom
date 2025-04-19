@@ -76,8 +76,12 @@ function precache() {
       "./favicon/ms-icon-70x70.png",
       "./js/gamecontroller.js",
       "./sf2/TimGM6mb.sf2",
-      "./wad/acheron.wad",
+      "./sf2/gzdoom.sf2",
+      "./sf2/Roland_SC-55.sf2",
+      "./sf2/Roland_SC-55_v2.2_by_Patch93_and_xan1242.sf2",
       "./wad/doom1.wad",
+      "./wad/freedoom1.wad",
+      "./wad/freedoom2.wad",
     ]);
   });
 }

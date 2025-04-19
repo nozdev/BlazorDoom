@@ -2,10 +2,9 @@
 @inject IJSRuntime JSRuntime
 
 @code {
-    private string currentUrl= string.Empty;
-    private string wadSelection = "doom1";
-    private string sf2Selection = "TimGM6mb";
 
+    private static string currentUrl= string.Empty;
+    private static IJSRuntime? _JSRuntime;
 
     static ManagedDoom.DoomApplication? app = null;
 
@@ -13,9 +12,13 @@
     {
         var jsHelper = new JsInteropHelper(JSRuntime);
         currentUrl = await jsHelper.GetWindowLocationHref();
+        await JSRuntime.InvokeAsync<string>("run");
+        _JSRuntime = JSRuntime;
+        LoadWad();
     }
 
-    async void LoadWad()
+    [JSInvokable]
+    public static async void LoadWad(string wadSelection = "doom1", string sf2Selection = "TimGM6mb")
     {
         Console.WriteLine("Loading assets");
         string wadUrl = $"{currentUrl}wad/{wadSelection}.wad";
@@ -26,26 +29,18 @@
         //jsProcessRuntime.InvokeVoid("gameLoop");
         Console.WriteLine(wadUrl);
         var stream = await http.GetStreamAsync(wadUrl);
-        var soundFontStream = await http.GetStreamAsync(soundFontUrl);
+        var soundFontStream =  await http.GetStreamAsync(soundFontUrl);
         var commandLineArgs = new ManagedDoom.CommandLineArgs(args);
         ManagedDoom.DoomApplication.SoundFontStream = soundFontStream;
-        app = new ManagedDoom.DoomApplication(soundFontUrl,JSRuntime, commandLineArgs, configLines, http, stream, wadUrl);
+        if (_JSRuntime != default(IJSRuntime))
+        {
+            app = new ManagedDoom.DoomApplication(soundFontUrl, _JSRuntime, commandLineArgs, configLines, http, stream, wadUrl);
+        }
         Console.WriteLine("Ready!");
-        await JSRuntime.InvokeAsync<string>("run");
     }
 
-    private void OnWadSelectionChanged(ChangeEventArgs e)
-    {
-        wadSelection = e.Value.ToString();
-    }
-
-    private void OnSf2SelectionChanged(ChangeEventArgs e)
-    {
-        sf2Selection = e.Value.ToString();
-    }
-
-    [JSInvokableAttribute("sdfsdf")]
-    public static void sdfsdf(int[] downKeys, int[] upKeys)
+    [JSInvokable]
+    public static void GameLoop(int[] downKeys, int[] upKeys)
     {
         if (app == null)
         {
@@ -65,22 +60,24 @@
             </button>
         </div>
         <div>
-            <select @onchange="OnWadSelectionChanged"  name="wad_selection" id="wad_selection">
+            <select name="wad_selection" id="wad_selection">
                 <option value="doom1">Doom 1 shareware</option>
                 <option value="freedoom1">FreeDoom 1</option>
                 <option value="freedoom2">FreeDoom 2</option>
             </select>
         </div>
         <div>
-            <select @onchange="OnSf2SelectionChanged"  name="sf2_selection" id="sf2_selection">
+            <select  name="sf2_selection" id="sf2_selection">
                 <option value="TimGM6mb">TimGM6mb sf2</option>
                 <option value="Roland_SC-55">Roland 1</option>
                 <option value="Roland_SC-55_v2.2_by_Patch93_and_xan1242">Roland 2</option>
                 <option value="Roland_SC-55">Roland 3</option>
+                <option value="gzdoom">GZDoom</option>
+
             </select>
         </div>
         <div>
-            <button @onclick="LoadWad" id="load_wad">Load WAD and SF2</button>
+            <button id="load_wad">Load WAD and SF2</button>
         </div>
         <div>
             <button id="toggle_fps">Toggle max FPS</button>
