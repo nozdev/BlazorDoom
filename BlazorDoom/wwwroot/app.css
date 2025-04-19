@@ -1,0 +1,55 @@
+﻿@import url("./css/open-iconic/font/css/open-iconic-bootstrap.min.css");
+
+html,
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#config_buttons {
+  z-index: 1;
+  position: absolute;
+  right: 0;
+  left: auto;
+  top: 0;
+}
+
+div,
+button {
+  text-align: right;
+}
+
+#install_button {
+  visibility: hidden;
+}
+
+a,
+.btn-link {
+  color: #0366d6;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+#fps {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+#canvas {
+  z-index: -1;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  width: auto;
+  height: 100vh;
+  image-rendering: pixelated;
+}

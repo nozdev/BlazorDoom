@@ -1,0 +1,104 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+
+
+
+
+<h3>Current URL: @currentUrl</h3>
+
+@code {
+    private string currentUrl= string.Empty;
+    private string wadSelection = "doom1";
+    private string sf2Selection = "TimGM6mb";
+
+
+    static ManagedDoom.DoomApplication? app = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var jsHelper = new JsInteropHelper(JSRuntime);
+        currentUrl = await jsHelper.GetWindowLocationHref();
+    }
+
+    async void LoadWad()
+    {
+        Console.WriteLine("Loading assets");
+        string wadUrl = $"{currentUrl}wad/{wadSelection}.wad";
+        string soundFontUrl = $"{currentUrl}sf2/{sf2Selection}.sf2";
+        string[] args = { };
+        string[] configLines = { };
+        var http = new HttpClient();
+        //jsProcessRuntime.InvokeVoid("gameLoop");
+        Console.WriteLine(wadUrl);
+        var stream = await http.GetStreamAsync(wadUrl);
+        var soundFontStream = await http.GetStreamAsync(soundFontUrl);
+        var commandLineArgs = new ManagedDoom.CommandLineArgs(args);
+        ManagedDoom.DoomApplication.SoundFontStream = soundFontStream;
+        app = new ManagedDoom.DoomApplication(soundFontUrl,JSRuntime, commandLineArgs, configLines, http, stream, wadUrl);
+        Console.WriteLine("Ready!");
+        await JSRuntime.InvokeAsync<string>("run");
+    }
+
+    private void OnWadSelectionChanged(ChangeEventArgs e)
+    {
+        wadSelection = e.Value.ToString();
+    }
+
+    private void OnSf2SelectionChanged(ChangeEventArgs e)
+    {
+        wadSelection = e.Value.ToString();
+    }
+
+    [JSInvokableAttribute("sdfsdf")]
+    public static void sdfsdf(int[] downKeys, int[] upKeys)
+    {
+        if (app == null)
+        {
+            return;
+        }
+        app.Run(downKeys, upKeys);
+    }
+}
+
+<div>
+    <div id="fps"></div>
+    <div id="config_buttons">
+        <div id="install_button"></div>
+        <div>
+            <button onclick="console.log('clicked sound button');">
+                Tap Sound
+            </button>
+        </div>
+        <div>
+            <select @onchange="OnWadSelectionChanged"  name="wad_selection" id="wad_selection">
+                <option value="doom1">Doom 1 shareware</option>
+                <option value="freedoom1">FreeDoom 1</option>
+                <option value="freedoom2">FreeDoom 2</option>
+            </select>
+        </div>
+        <div>
+            <select @onchange="OnSf2SelectionChanged"  name="sf2_selection" id="sf2_selection">
+                <option value="TimGM6mb">TimGM6mb sf2</option>
+                <option value="Roland_SC-55">Roland 1</option>
+                <option value="Roland_SC-55_v2.2_by_Patch93_and_xan1242">Roland 2</option>
+                <option value="Roland_SC-55_v37">Roland 3</option>
+            </select>
+        </div>
+        <div>
+            <button @onclick="LoadWad" id="load_wad">Load WAD and SF2</button>
+        </div>
+        <div>
+            <button id="toggle_fps">Toggle max FPS</button>
+        </div>
+        <div>
+            <select name="palette-choice" id="palette-choice">
+                <option value="default" selected>Default</option>
+                <option value="grayscale">Grayscale</option>
+                <option value="8colors">8 colors</option>
+                <option value="blueman">Blue doom</option>
+            </select>
+        </div>
+        <div id="color-palette" style="width: 200px; margin:0; padding: 0"></div>
+    </div>
+    <canvas id="canvas" width="320" height="200"></canvas>
+</div>
